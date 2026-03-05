@@ -18,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Ambil URL tujuan dari env atau default
-TARGET_URL = os.getenv("TARGET_URL", "https://www.bankmandiri.co.id/")
+TARGET_URL = os.getenv("TARGET_URL", "mandiri-alert-production.up.railway.app")
 
 @app.route('/track')
 def track():
@@ -55,3 +55,4 @@ def home():
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
