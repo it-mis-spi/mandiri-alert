@@ -33,5 +33,8 @@ def track():
     return redirect(TARGET_URL)
 
 if __name__ == '__main__':
+    port = int(os.getenv("PORT", 5000))  # Wajib pakai $PORT dari Railway
+    app.run(host='0.0.0.0', port=port, debug=False)  # host=0.0.0.0 penting!
 
     app.run(debug=True)
+
