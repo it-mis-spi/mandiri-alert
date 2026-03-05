@@ -8,7 +8,7 @@ import requests
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "mandiri-secure-key-2024")
+app.secret_key = os.getenv("SECRET_KEY", "cyber_security_trial_spi_123")
 
 # Konfigurasi Logging agar muncul di Railway Dashboard
 logging.basicConfig(
