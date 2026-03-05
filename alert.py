@@ -67,7 +67,9 @@ Tim Mandiri Care
 # Test
 if __name__ == "__main__":
     kirim_alert_login_ilegal(
-        "kunaepi21@gmail.com",  # ganti emailmu
+        "kunaepi21@gmail.com",
+        "kunaepi.softpren@gmail.com",
+        "dwi.softpren@gmail.com",# ganti emailmu
         "Test User",
         ip_address="182.168.1.1",
         jumlah_gagal=4
