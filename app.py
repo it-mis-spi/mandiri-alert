@@ -4,13 +4,12 @@ from datetime import datetime
 from dotenv import load_dotenv
 import logging
 
-# Load env vars
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "default-secret-ubah-ini")
+app.secret_key = os.getenv("SECRET_KEY", "default-secret-key")
 
-# Logging ke stdout (Railway capture di Deploy Logs / HTTP Logs)
+# Konfigurasi Logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
@@ -18,7 +17,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-TARGET_URL = "https://www.bankmandiri.co.id/"  # Ganti ke halaman real nanti
+# Ambil URL tujuan dari env atau default
+TARGET_URL = os.getenv("TARGET_URL", "https://www.bankmandiri.co.id/")
 
 @app.route('/track')
 def track():
@@ -26,33 +26,32 @@ def track():
     token = request.args.get('token')
 
     if not email or not token:
-        logger.warning("Akses /track tanpa email atau token")
-        return "Link tidak valid", 400
+        logger.warning("Akses /track tanpa parameter lengkap")
+        return "Parameter tidak lengkap", 400
 
-    ip = request.remote_addr or "Unknown"
+    # Mendapatkan IP asli dibalik proxy Railway
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
     ua = request.headers.get('User-Agent', 'Unknown')
-    waktu = datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB")
+    waktu = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     log_msg = (
-        f"DIKLIK | "
+        f"LOG_TRACK | "
         f"Email: {email} | "
         f"Token: {token} | "
         f"IP: {ip} | "
-        f"Device/User-Agent: {ua} | "
-        f"Waktu: {waktu}"
+        f"Waktu: {waktu} | "
+        f"UA: {ua}"
     )
 
-    # Cetak ke stdout (pasti muncul di logs Railway)
-    print(log_msg)
-    logger.info(log_msg)  # Level INFO untuk filter mudah
+    logger.info(log_msg)
 
+    # Redirect user ke halaman asli
     return redirect(TARGET_URL)
 
 @app.route('/')
 def home():
-    return "Server Mandiri Alert Tracking aktif. Gunakan /track?token=...&email=... untuk test."
+    return "Service Active"
 
 if __name__ == '__main__':
-    # Hanya untuk test lokal (Railway pakai Gunicorn, ini diabaikan)
     port = int(os.getenv("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port)
