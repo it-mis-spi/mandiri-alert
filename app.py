@@ -18,7 +18,6 @@ TARGET_URL = "https://www.mandiri.co.id/keamanan"  # ganti ke halaman real nanti
 def track():
     email = request.args.get('email')
     token = request.args.get('token')
-
     if not email or not token:
         return "Link tidak valid", 400
 
@@ -26,12 +25,13 @@ def track():
     ua = request.headers.get('User-Agent', 'Unknown')
     waktu = datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB")
 
-    log = f"DIKLIK | Email: {email} | Token: {token} | IP: {ip} | Device: {ua} | {waktu}"
-    logger.info(log)
+    log_msg = f"DIKLIK | Email: {email} | Token: {token} | IP: {ip} | Device: {ua} | {waktu}"
+    print(log_msg)  # Ini pasti ke stdout → muncul di logs Railway
 
-    # Bisa simpan ke file/DB di sini nanti
+    # Optional: app.logger.info(log_msg) kalau pakai Flask logger
 
     return redirect(TARGET_URL)
 
 if __name__ == '__main__':
+
     app.run(debug=True)
