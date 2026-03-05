@@ -4,42 +4,41 @@ from datetime import datetime
 from dotenv import load_dotenv
 import logging
 
+# Load environment variables
 load_dotenv()
 
 # Setup Flask app
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "default-secret-key-jika-tidak-ada")
+app.secret_key = os.getenv("SECRET_KEY", "default-secret-key-ubah-ini")
 
-# Setup logging agar muncul di Railway logs (stdout)
+# Setup logging ke stdout (Railway capture ini di Deploy Logs / HTTP Logs)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[logging.StreamHandler()]  # Pastikan ke stdout
+    handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
 
-# Halaman tujuan setelah klik link
-TARGET_URL = "https://www.mandiri.co.id/keamanan"  # Ganti sesuai kebutuhan
+# Halaman tujuan setelah klik
+TARGET_URL = "https://www.mandiri.co.id/keamanan"  # Ganti sesuai halaman real
 
 @app.route('/track')
 def track():
     """
-    Endpoint untuk tracking klik link dari email alert.
-    Mencatat email, token, IP, User-Agent (device/browser), dan waktu.
+    Tracking klik link dari email.
+    Catat email, token, IP, User-Agent (device), waktu.
     """
     email = request.args.get('email')
     token = request.args.get('token')
 
     if not email or not token:
-        logger.warning("Akses /track tanpa email atau token")
+        logger.warning("Akses /track tanpa parameter email/token")
         return "Link tidak valid", 400
 
-    # Ambil data request
     ip = request.remote_addr or "Unknown"
     ua = request.headers.get('User-Agent', 'Unknown')
     waktu = datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB")
 
-    # Buat pesan log
     log_msg = (
         f"DIKLIK | "
         f"Email: {email} | "
@@ -49,25 +48,19 @@ def track():
         f"Waktu: {waktu}"
     )
 
-    # Cetak ke stdout (pasti muncul di Railway Deploy Logs atau HTTP Logs)
+    # Cetak ke stdout (pasti muncul di Railway logs)
     print(log_msg)
-
-    # Log dengan level INFO (bisa difilter di dashboard)
+    # Log Flask-level
     logger.info(log_msg)
 
-    # Optional: kalau ingin log ke file (tapi di Railway ephemeral, hilang saat restart)
-    # with open('/tmp/klik.log', 'a') as f:
-    #     f.write(log_msg + '\n')
-
-    # Redirect ke halaman keamanan
     return redirect(TARGET_URL)
 
 @app.route('/')
 def home():
-    """Route root sederhana untuk test apakah app hidup"""
-    return "Server Mandiri Alert Tracking aktif. Gunakan /track?token=...&email=..."
+    """Route sederhana untuk test app hidup"""
+    return "Server Mandiri Alert Tracking aktif. Akses /track?token=...&email=... untuk test."
 
 if __name__ == '__main__':
-    # Untuk test lokal saja (di Railway ini diabaikan karena pakai Gunicorn)
+    # Hanya untuk test lokal (di Railway ini diabaikan oleh Gunicorn)
     port = int(os.getenv("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)  # debug=False di production
